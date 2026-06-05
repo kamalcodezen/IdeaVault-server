@@ -9,6 +9,11 @@ app.use(cors())
 app.use(express.json())
 
 
+const uri = process.env.MONGO_DB_URI;
+
+
+
+
 app.get("/", (req, res) => {
     res.send("designVault server is running fine~!")
 })
