@@ -2,7 +2,7 @@ const express = require("express")
 const dotenv = require("dotenv")
 const cors = require("cors")
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const PORT = process.env.PORT || 5000
+const port = process.env.PORT || 8000
 dotenv.config()
 
 const app = express()
@@ -27,9 +27,24 @@ async function run() {
         await client.connect();
 
         const db = client.db("designVault")
-        const designCollection = db.collection("idea")
+        const ideasCollection = db.collection("ideas")
 
-        
+        // all ideas data api
+        app.get("/ideas", async (req, res) => {
+            const result = await ideasCollection.find().toArray()
+            res.json(result)
+        })
+
+
+        // ideas post (add-idea)
+        app.post("/ideas", async (req, res) => {
+            const ideasData = req.body
+            const result = await ideasCollection.insertOne(ideasData);
+            res.json(result)
+        })
+
+
+
 
 
         // Send a ping to confirm a successful connection
@@ -49,6 +64,6 @@ app.get("/", (req, res) => {
     res.send("designVault server is running fine~!")
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is running ${PORT}`)
+app.listen(port, () => {
+    console.log(`Server is running ${port}`)
 })
