@@ -68,6 +68,18 @@ async function run() {
             res.json(result)
         })
 
+        // update comment 
+        app.patch("/comments/:id", async (req, res) => {
+            const { id } = req.params;
+            const updatedData = req.body;
+            // console.log(updatedData, "req data")
+            const result = await commentCollection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: updatedData }
+            )
+            // console.log(result, "after update")
+            res.json(result)
+        })
 
 
 
