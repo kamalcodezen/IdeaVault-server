@@ -81,6 +81,15 @@ async function run() {
             res.json(result)
         })
 
+        // comment delete
+        app.delete("/comments/:id", async (req, res) => {
+            const { id } = req.params
+            const result = await commentCollection.deleteOne({ _id: new ObjectId(id) })
+            res.json(result)
+        })
+
+
+
 
 
         // Send a ping to confirm a successful connection
