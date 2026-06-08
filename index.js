@@ -98,10 +98,16 @@ async function run() {
                 { _id: new ObjectId(id) },
                 { $set: updatedData }
             )
-            // console.log(result, "ideaupdate")
             res.json(result)
         })
 
+        // my idea page DELETE button
+        app.delete("/ideas/:id", async (req, res) => {
+            const { id } = req.params
+            const result = await ideasCollection.deleteOne({ _id: new ObjectId(id) })
+            console.log(result, "delete idea")
+            res.json(result)
+        })
 
 
 
