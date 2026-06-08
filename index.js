@@ -2,6 +2,7 @@ const express = require("express")
 const dotenv = require("dotenv")
 const cors = require("cors")
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 const port = process.env.PORT || 8000
 dotenv.config()
 
@@ -20,6 +21,48 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+
+
+// jtw token verify
+
+const JWKS = createRemoteJWKSet(
+    new URL(`http://localhost:3000/api/auth/jwks`)
+)
+
+const verifyToken = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized Access",
+            });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Token not found",
+            });
+        }
+
+        const { payload } = await jwtVerify(token, JWKS);
+        // console.log(payload)
+        req.user = payload;
+
+        next();
+    } catch (error) {
+        // console.error("JWT Verify Error:", error);
+        return res.status(401).json({
+            success: false,
+            message: "Forbidden Access",
+        });
+    }
+};
+
 
 async function run() {
     try {
@@ -46,7 +89,7 @@ async function run() {
         })
 
         // ideas details data id only one data read
-        app.get("/ideas/:id", async (req, res) => {
+        app.get("/ideas/:id", verifyToken, async (req, res) => {
             const { id } = req.params
             const result = await ideasCollection.findOne({ _id: new ObjectId(id) })
             // console.log(result)
